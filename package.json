@@ -8,6 +8,9 @@
     "generate": "nuxt generate",
     "start": "node .output/server/index.mjs",
     "preview": "nuxt preview",
+    "cf:build": "nuxt generate",
+    "cf:dev": "npm run cf:build && wrangler dev --assets .output/public",
+    "cf:deploy": "npm run cf:build && wrangler deploy",
     "postinstall": "nuxt prepare",
     "test": "node --test app.test.js model.test.js metrics.test.js"
   },
@@ -16,5 +19,8 @@
     "nuxt": "^4.0.0",
     "vue": "^3.5.0",
     "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.153.0"
   }
 }
