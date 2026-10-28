@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 for (const width of [320, 375, 414, 768, 1024, 1440]) {
   test(`clique fora cancela os popups sem alterar dados em ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/');
+    await page.goto('/tarefas');
     await expect(page.locator('.task')).toHaveCount(7);
     const before = await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'));
     const actions = page.getByRole('button', { name: 'Mais ações do mês', exact: true });

@@ -1,4 +1,4 @@
-# Rotina de Base
+# Base Ativa
 
 Aplicação Nuxt 4/Vue 3, mobile first, com tarefas mensais e dados locais.
 Antes de editar, leia `README.md` e os arquivos afetados. Preserve os dados

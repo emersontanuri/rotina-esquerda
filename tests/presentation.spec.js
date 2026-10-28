@@ -1,23 +1,54 @@
 import { test, expect } from '@playwright/test';
 
+for (const [width, height] of [[1024, 768], [1440, 900], [1920, 912], [2560, 1080]]) {
+  test(`home sem rolagem em ${width}×${height}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    for (const theme of ['light', 'dark']) {
+      await page.evaluate(theme => document.documentElement.dataset.theme = theme, theme);
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(height);
+      await expect(page.getByRole('link', { name: 'Ir para minhas tarefas' })).toBeInViewport();
+    }
+  });
+}
+
 test('apresentação leva às tarefas sem iniciar o vídeo automaticamente', async ({ page }) => {
-  await page.goto('/apresentacao');
+  await page.goto('/');
+  await expect(page).toHaveTitle('Conheça o Base Ativa — O coletivo começa no cotidiano');
+  await expect(page.getByRole('link', { name: 'Base Ativa — início' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'O coletivo começa no cotidiano' })).toBeVisible();
   const video = page.locator('video');
   await expect(video).toHaveAttribute('preload', 'none');
   expect(await video.evaluate(element => element.paused && !element.autoplay && element.controls)).toBe(true);
   await expect(page.locator('footer, .main-nav')).toHaveCount(0);
   await page.getByRole('link', { name: 'Ir para minhas tarefas' }).click();
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   await expect(page.locator('.main-nav')).toBeVisible();
+  const saved = await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'));
+  await page.getByRole('link', { name: 'Métricas', exact: true }).click();
+  await page.getByRole('link', { name: 'Tarefas', exact: true }).click();
+  await expect(page).toHaveURL('/tarefas');
+  await page.getByRole('link', { name: 'Base Ativa — início' }).click();
+  await expect(page).toHaveURL('/');
+  await expect(page.locator('.presentation')).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'))).toBe(saved);
+});
+
+test('endereço antigo da apresentação continua abrindo a home', async ({ page }) => {
+  await page.goto('/apresentacao');
+  await expect(page.locator('.presentation')).toBeVisible();
+  await expect(page.locator('footer, .main-nav')).toHaveCount(0);
+  await page.getByRole('link', { name: 'Ir para minhas tarefas' }).click();
+  await expect(page).toHaveURL('/tarefas');
 });
 
 for (const width of [320, 375, 414, 768, 1024, 1440, 1920, 2560]) {
  for (const height of [600, 900]) {
   test(`apresentação legível em ${width}×${height}px nos dois temas`, async ({ page }) => {
     await page.setViewportSize({ width, height });
-    await page.goto('/apresentacao');
+    await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     const cta = page.getByRole('link', { name: 'Ir para minhas tarefas' });
     const art = page.locator('.presentation-art img');
@@ -67,7 +98,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440, 1920, 2560]) {
 }
 
 test('vídeo horizontal reproduz quando a pessoa inicia', async ({ page }) => {
-  await page.goto('/apresentacao');
+  await page.goto('/');
   const video = page.locator('video');
   await page.getByRole('button', { name: 'Reproduzir apresentação de 25 segundos' }).focus();
   await page.keyboard.press('Enter');
@@ -75,24 +106,25 @@ test('vídeo horizontal reproduz quando a pessoa inicia', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Reproduzir apresentação de 25 segundos' })).toHaveCount(0);
   await expect(video).toBeFocused();
   expect(await video.evaluate(element => element.videoWidth / element.videoHeight)).toBeCloseTo(16 / 9);
+  expect(await video.evaluate(element => element.duration)).toBeCloseTo(25, 1);
   await video.evaluate(element => element.pause());
 });
 
 test('falha de conexão permite tentar reproduzir novamente', async ({ page }) => {
-  await page.route('**/videos/rotina-de-base.mp4', route => route.abort());
-  await page.goto('/apresentacao');
+  await page.route('**/videos/base-ativa.mp4', route => route.abort());
+  await page.goto('/');
   const play = page.getByRole('button', { name: 'Reproduzir apresentação de 25 segundos' });
   await play.click();
   await expect(page.getByRole('alert')).toContainText('Verifique sua conexão');
   await expect(play).toBeFocused();
-  await page.unroute('**/videos/rotina-de-base.mp4');
+  await page.unroute('**/videos/base-ativa.mp4');
   await play.click();
   await expect.poll(() => page.locator('video').evaluate(element => element.currentTime)).toBeGreaterThan(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
 test('apresentação e acesso às tarefas funcionam offline sem precache do vídeo', async ({ page, context }) => {
-  await page.goto('/apresentacao');
+  await page.goto('/');
   await expect(page.locator('h1')).toHaveText('O coletivo começano cotidiano');
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;

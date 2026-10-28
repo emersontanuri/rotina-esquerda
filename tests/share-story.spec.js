@@ -33,6 +33,7 @@ test('prévia exporta o mesmo PNG e devolve o foco ao fechar', async ({ page }) 
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Baixar PNG', exact: true }).click();
   const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^base-ativa-\d{4}-\d{2}\.png$/);
   const stream = await file.createReadStream();
   const chunks = [];
   for await (const chunk of stream) chunks.push(chunk);

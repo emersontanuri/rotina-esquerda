@@ -7,7 +7,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://fonts.googleapis.com/**', route => route.abort());
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/tarefas');
     await expect(page.locator('.task')).toHaveCount(7);
     await page.evaluate(() => {
       const event = new Event('beforeinstallprompt', { cancelable: true });
@@ -118,11 +118,13 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
 }
 
 test('PWA inicia nas duas rotas offline e mantém edições locais', async ({ page, context }) => {
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   const manifestUrl = await page.locator('link[rel=manifest]').getAttribute('href');
   const response = await page.request.get(manifestUrl);
   const manifest = await response.json();
+  expect(manifest.name).toBe('Base Ativa');
+  expect(manifest.short_name).toBe('Base Ativa');
   expect(manifest.display).toBe('standalone');
   expect(manifest.icons.some(icon => icon.sizes === '192x192')).toBe(true);
   expect(manifest.icons.some(icon => icon.purpose === 'maskable')).toBe(true);
@@ -146,14 +148,14 @@ test('PWA inicia nas duas rotas offline e mantém edições locais', async ({ pa
   await expect(page.getByRole('heading', { name: 'Criada offline', exact: true })).toBeVisible();
   await page.goto('/metricas');
   await expect(page.locator('.month-tile')).toHaveCount(12);
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(8);
   await context.setOffline(false);
   await expect(page.getByText('Você está offline.', { exact: false })).toBeHidden();
 });
 
 test('atualização aguarda a pessoa salvar e preserva as tarefas', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
@@ -179,7 +181,7 @@ test('armazenamento indisponível não impede a interface e mostra aviso', async
   await page.addInitScript(() => {
     Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Blocked', 'SecurityError'); } });
   });
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   await expect(page.getByRole('alert')).toContainText('Não foi possível ler');
 });

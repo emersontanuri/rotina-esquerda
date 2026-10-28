@@ -15,7 +15,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
         [key(1)]: [{ id: 'old', title: 'Será substituída', completed: false, subtasks: [] }],
       } }));
     });
-    await page.goto('/');
+    await page.goto('/tarefas');
     const trigger = page.getByRole('button', { name: 'Copiar todas para outro mês', exact: true });
     const actions = page.getByRole('button', { name: 'Mais ações do mês', exact: true });
     await expect(trigger).toBeHidden();

@@ -9,8 +9,8 @@ export default defineNuxtConfig({
     client: { installPrompt: false },
     manifest: {
       id: '/',
-      name: 'Rotina de Base',
-      short_name: 'Rotina de Base',
+      name: 'Base Ativa',
+      short_name: 'Base Ativa',
       description: 'Organize suas tarefas mensais, uma ação de cada vez.',
       lang: 'pt-BR',
       start_url: '/',
@@ -37,7 +37,7 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: 'pt-BR' },
       script: [{ src: '/theme-init.js', tagPosition: 'head' }],
-      title: 'Rotina de Base — O coletivo começa no cotidiano',
+      title: 'Base Ativa — O coletivo começa no cotidiano',
       viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/rotina-de-base.svg' },
@@ -48,7 +48,7 @@ export default defineNuxtConfig({
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
-        { name: 'description', content: 'Rotina de Base. O coletivo começa no cotidiano. Organize suas tarefas mensais de mobilização, uma ação de cada vez.' },
+        { name: 'description', content: 'Base Ativa. O coletivo começa no cotidiano. Organize suas tarefas mensais de mobilização, uma ação de cada vez.' },
       ],
     },
   },

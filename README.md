@@ -1,4 +1,4 @@
-# Rotina de Base · Nuxt 4
+# Base Ativa · Nuxt 4
 
 Aplicação Nuxt 4 e Vue 3 com tarefas e subtarefas mensais, edição e persistência no navegador.
 
@@ -25,14 +25,20 @@ pnpm generate gera arquivos estáticos em .output/public. O app usa renderizaç�
 
 ## Mobile e PWA
 
-A página secundária de teste `/apresentacao` apresenta a Rotina de Base com
-mensagem, vídeo horizontal e acesso às tarefas. A página inicial `/` continua
-abrindo as tarefas. O vídeo inicia ao tocar em reproduzir e depende de rede;
+A página inicial `/` apresenta o Base Ativa com mensagem, vídeo horizontal
+e acesso às tarefas em `/tarefas`. O endereço `/apresentacao` continua
+disponível como alternativa para a home. O vídeo inicia ao tocar em reproduzir e depende de rede;
 não entra no precache do PWA. A apresentação e o acesso às tarefas funcionam
 offline após a primeira visita online e a conclusão do cache.
 A apresentação usa a direção visual “Cartaz vivo”, com ilustrações em
-`public/presentation/`, título em fonte local e capa ilustrada com botão de
+`public/presentation/`, título em fonte local e capa do vídeo com botão de
 reprodução. Após iniciar o vídeo, os controles nativos ficam disponíveis.
+O vídeo Base Ativa tem 20 segundos, em 1920 × 1080 a 30 fps, com telas reais,
+dados fictícios e trilha sem narração. Vídeo e capa estão em
+`public/videos/base-ativa.mp4` e `public/videos/base-ativa-capa.png`.
+Fontes editáveis e verificações ficam em `output/brag/base-ativa/`.
+Música: Sascha Ende, ende.app, “Happy Beats / Business Moves Vol. 1”,
+[CC BY 4.0](https://ende.app/en/standard-license). Efeitos: Kenney.nl, CC0.
 No desktop, as artes laterais são imagens independentes, proporcionais e
 alinhadas ao fundo da página. Abaixo de 700px, permanece a composição original
 de fundo na base, sem fade sobre as figuras.
@@ -43,7 +49,7 @@ usam fonte de 16px e os diálogos respeitam a altura útil e as safe areas.
 
 O módulo `@vite-pwa/nuxt` gera manifest, service worker e precache dos arquivos
 do aplicativo no build. Após a primeira visita online e a conclusão do cache,
-as rotas `/` e `/metricas` funcionam offline, inclusive ao recarregar.
+as rotas `/`, `/tarefas` e `/metricas` funcionam offline, inclusive ao recarregar.
 As tarefas continuam na chave local existente, sem sincronização com servidor.
 As fontes externas são opcionais: sem rede, a interface usa fontes locais.
 
@@ -95,7 +101,8 @@ anexar à rede desejada. A publicação é feita por você no aplicativo escolhi
 A geração também funciona offline depois que o PWA estiver em cache.
 
 - app/app.vue: navegação, tema e avisos do PWA.
-- app/pages/index.vue: tarefas e diálogos de edição.
+- app/pages/index.vue: apresentação e acesso às tarefas.
+- app/pages/tarefas.vue: tarefas e diálogos de edição.
 - app/composables/useMonthlyTasks.js: estado mensal, operações e persistência.
 - app/assets/css/main.css: estilos responsivos.
 - model.js: exemplos iniciais, validação e calendário.
@@ -119,3 +126,14 @@ Não há login ou sincronização. Pessoas no mesmo perfil de navegador e endere
 Os testes cobrem calendário, progresso, operações, banco de sugestões, cópia entre meses, migração, restauração e falhas de armazenamento. Para conferir a interface, navegue entre meses, adicione sugestões, copie tarefas, edite os passos, recarregue a página e teste teclado e telas estreitas.
 
 
+
+## Apoio ao projeto
+
+A página `/apoie`, acessível pelo rodapé, oferece Buy Me a Coffee e Pix sem valor fixo.
+O QR Code SVG e o código Pix ficam disponíveis offline após a conclusão do cache do PWA.
+A cópia usa a área de transferência; se indisponível, selecione o código manualmente.
+Acessar o Buy Me a Coffee e concluir o pagamento exige internet.
+O Pix é público, e o aplicativo não processa pagamentos nem confirma recebimentos.
+O SVG em `public/pix-apoio.svg` foi gerado com `qrcode` 1.5.4, sem dependência
+no aplicativo. Ao trocar o Pix em `app/pages/apoie.vue`, gere novamente o QR Code
+com o mesmo conteúdo e atualize o teste de apoio.

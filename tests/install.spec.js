@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('convite aguarda oito segundos, pode fechar e instalar pelo topo', async ({ page }) => {
   await page.clock.install();
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   await page.evaluate(() => {
     const event = new Event('beforeinstallprompt', { cancelable: true });
@@ -27,7 +27,7 @@ test('convite aguarda oito segundos, pode fechar e instalar pelo topo', async ({
 test('iPhone recebe instruções e o topo reabre o aviso fechado', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, 'userAgent', { value: 'iPhone' }));
   await page.clock.install();
-  await page.goto('/');
+  await page.goto('/tarefas');
   await expect(page.locator('.task')).toHaveCount(7);
   await page.clock.fastForward(8000);
   const notice = page.getByRole('region', { name: 'Instalar no celular' });

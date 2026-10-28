@@ -33,7 +33,7 @@ export async function createStory(summary) {
   };
   ctx.drawImage(background, 0, 0, 1080, 1920);
   ctx.drawImage(logo, 373, 150, 58, 58);
-  text('ROTINA DE BASE', 449, 194, 42, '#25241f', 350);
+  text('BASE ATIVA', 449, 194, 42, '#25241f', 350);
   text('Cada ação', 110, 366, 166, '#25241f', 780);
   text('conta.', 110, 526, 184, '#c92c25', 650);
   text(summary.streak, 540, 914, 354, '#fffaf0', 480, 'center');
@@ -52,5 +52,5 @@ export async function createStory(summary) {
   text('Constância que transforma.', 540, 1782, 64, '#25241f', 888, 'center');
   text(`Histórico até ${monthName(summary.through)}`, 540, 1834, 28, '#25241f', 888, 'center');
   const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('Falha no PNG')), 'image/png'));
-  return new File([blob], `rotina-de-base-${summary.through}.png`, { type: 'image/png' });
+  return new File([blob], `base-ativa-${summary.through}.png`, { type: 'image/png' });
 }
