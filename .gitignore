@@ -7,3 +7,5 @@ dist/
 .env
 .pnpm-store/
 output/
+test-results/
+playwright-report/

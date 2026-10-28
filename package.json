@@ -2,6 +2,7 @@
   "name": "rotina-esquerda",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.34.9",
   "scripts": {
     "dev": "nuxt dev --host 127.0.0.1 --port 3000",
     "build": "nuxt build",
@@ -12,7 +13,8 @@
     "cf:dev": "npm run cf:build && wrangler dev --assets .output/public",
     "cf:deploy": "npm run cf:build && wrangler deploy",
     "postinstall": "nuxt prepare",
-    "test": "node --test app.test.js model.test.js metrics.test.js"
+    "test": "node --test app.test.js model.test.js metrics.test.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@lucide/vue": "^1.61.0",
@@ -21,6 +23,8 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@vite-pwa/nuxt": "^1.1.1",
     "wrangler": "^4.153.0"
   }
 }

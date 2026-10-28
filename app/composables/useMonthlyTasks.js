@@ -68,6 +68,12 @@ export function useMonthlyTasks() {
   function addSubtask(task, title) {
     task.subtasks.push({ id: crypto.randomUUID(), title, completed: false }); task.completed = false; save();
   }
+  function copyMonth(destination) {
+    if (!validMonth(destination) || destination <= selected.value || !tasks.value.length) return null;
+    const copies = tasks.value.map(freshTask);
+    data.value.months[destination] = copies;
+    save(); return copies.length;
+  }
   function rename(item, title) { item.title = title; save(); }
   function toggleTask(task, checked) { task.completed = checked; task.subtasks.forEach(sub => sub.completed = checked); save(); }
   function toggleSubtask(task, sub, checked) { sub.completed = checked; task.completed = isComplete(task); save(); }
@@ -77,5 +83,5 @@ export function useMonthlyTasks() {
     task.subtasks = task.subtasks.filter(item => item.id !== sub.id);
     task.completed = task.subtasks.length ? isComplete(task) : complete; save();
   }
-  return { data, selected, tasks, completed, percent, monthTitle, warning, saveStatus, initialize, openMonth, addTask, addSuggestion, copyTask, addSubtask, rename, toggleTask, toggleSubtask, removeTask, removeSubtask };
+  return { data, selected, tasks, completed, percent, monthTitle, warning, saveStatus, initialize, openMonth, addTask, addSuggestion, copyTask, copyMonth, addSubtask, rename, toggleTask, toggleSubtask, removeTask, removeSubtask };
 }

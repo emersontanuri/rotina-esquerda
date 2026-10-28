@@ -20,7 +20,7 @@ const streakMessage = computed(() => metrics.value.streak === null ? 'A sequênc
 </script>
 
 <template>
-  <main class="metrics-page">
+  <main id="main-content" class="metrics-page" tabindex="-1">
     <section class="metrics-hero">
       <div><p class="eyebrow">SUA CONSTÂNCIA EM MOVIMENTO</p><h1>Cada <span>ação</span> conta.</h1><p class="intro">Acompanhe suas tarefas concluídas, mês a mês.</p></div>
       <label class="year-picker">Ano <select v-model.number="year"><option v-for="option in years" :key="option" :value="option">{{ option }}</option></select></label>

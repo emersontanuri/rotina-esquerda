@@ -4,7 +4,7 @@ Aplicação Nuxt 4 e Vue 3 com tarefas e subtarefas mensais, edição e persist�
 
 ## Executar
 
-Requer Node.js 22 ou superior.
+Requer Node.js 22 ou superior e pnpm 10 (versão fixada em `packageManager`).
 
 ```sh
 pnpm install
@@ -23,9 +23,51 @@ pnpm start
 
 pnpm generate gera arquivos estáticos em .output/public. O app usa renderização no cliente (ssr: false), sem API ou banco de dados.
 
+## Mobile e PWA
+
+O layout começa em 320px e amplia em 450, 700 e 1024px. Os cartões agrupam
+as ações no rodapé e os controles têm área mínima de 44px. Os formulários
+usam fonte de 16px e os diálogos respeitam a altura útil e as safe areas.
+
+O módulo `@vite-pwa/nuxt` gera manifest, service worker e precache dos arquivos
+do aplicativo no build. Após a primeira visita online e a conclusão do cache,
+as rotas `/` e `/metricas` funcionam offline, inclusive ao recarregar.
+As tarefas continuam na chave local existente, sem sincronização com servidor.
+As fontes externas são opcionais: sem rede, a interface usa fontes locais.
+
+Em navegadores compatíveis, o rodapé oferece **Instalar aplicativo** quando
+o navegador disponibiliza a instalação. No Safari do iPhone/iPad, use
+**Compartilhar → Adicionar à Tela de Início**. Em produção é necessário HTTPS;
+localhost é aceito para desenvolvimento. Instalar não cria backup dos dados.
+
+Novos builds apresentam **Atualizar agora**. A atualização só recarrega após
+ação da pessoa e não é aplicada enquanto houver um diálogo aberto. Feche e
+salve a edição antes de atualizar. O modo `pnpm dev` não registra o service
+worker; valide o PWA com o build estático.
+
+```sh
+pnpm exec playwright install chromium
+pnpm generate
+pnpm test:e2e
+```
+
+Os testes E2E iniciam um servidor local na porta 4173 e verificam seis larguras,
+temas, áreas de toque, edição, recarga offline e acesso direto às métricas.
+Para usar Chrome já instalado no PowerShell:
+`$env:PLAYWRIGHT_CHANNEL='chrome'; pnpm test:e2e`.
+Capturas e traces ficam em `output/`. Consulte `docs/mobile-pwa.md` para a análise.
+
+## Skills de desenvolvimento
+
+As 36 skills globais e seus gatilhos estão documentados em `docs/skills.md`.
+O arquivo `AGENTS.md` orienta o uso no projeto; `docs/skills-lock.json` registra
+as fontes, commits e hashes instalados. Elas ficam disponíveis no próximo turno.
+As ferramentas de vídeo do Brag são opcionais e não entram no build do app.
+
 ## Organização e dados
 
-- app/app.vue: interface reativa e diálogo de edição.
+- app/app.vue: navegação, tema e avisos do PWA.
+- app/pages/index.vue: tarefas e diálogos de edição.
 - app/composables/useMonthlyTasks.js: estado mensal, operações e persistência.
 - app/assets/css/main.css: estilos responsivos.
 - model.js: exemplos iniciais, validação e calendário.
@@ -40,7 +82,9 @@ Na leitura dos dados, exemplos antigos intactos são substituídos por uma sequ�
 
 A chave rotina-esquerda:v1 continua compatível com a versão anterior: { version: 1, months: { "AAAA-MM": [tarefas] } }. Tarefas têm id, title, completed e subtasks; subtarefas têm id, title e completed.
 
-O checkbox principal marca todos os passos; o progresso considera tarefas principais concluídas. Exclusão de tarefa com subtarefas pede confirmação. Mudanças afetam somente o mês selecionado.
+A ação **Copiar todas para outro mês** copia a lista do mês aberto para um único mês posterior, com o próximo mês preenchido. Após escolher o destino, uma confirmação informa quantas tarefas serão removidas e copiadas. A lista de destino é substituída integralmente, sem adicionar padrões; a origem permanece intacta. As cópias recebem novos identificadores e tarefas e passos desmarcados. Cancelar ou pressionar Escape não altera dados. A confirmação oferece **Ver mês**. A ação fica indisponível em meses vazios ou sem destino posterior representável.
+
+O checkbox principal marca todos os passos; o progresso considera tarefas principais concluídas. Exclusão de tarefa com subtarefas pede confirmação. Mudanças afetam somente o mês selecionado, exceto as ações explícitas de cópia para outro mês.
 
 Não há login ou sincronização. Pessoas no mesmo perfil de navegador e endereço compartilham o armazenamento. Limpar dados do navegador apaga as listas. Falhas são informadas; dados inválidos são preservados e a sessão funciona temporariamente em memória. Nenhum dado das tarefas é enviado ao servidor. As fontes do Google são opcionais, com fontes locais de reserva.
 

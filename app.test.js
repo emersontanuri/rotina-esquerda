@@ -47,6 +47,41 @@ test('migração substitui apenas exemplos intactos e não repete', () => {
 function storage(raw = null, fail = false) {
   return { raw, getItem() { return this.raw; }, setItem(key, value) { if (fail) throw new Error('blocked'); this.raw = value; } };
 }
+test('cópia mensal substitui o destino, reinicia progresso e persiste sem alterar a origem', () => {
+  const disk = storage(), app = useMonthlyTasks(); app.initialize(() => disk); app.openMonth('2026-12');
+  app.addTask('Última tarefa'); app.toggleTask(app.tasks.value[0], true);
+  const before = JSON.stringify(app.tasks.value);
+  app.openMonth('2027-01'); app.addTask('Será substituída'); app.openMonth('2026-12');
+  let writes = 0;
+  const setItem = disk.setItem.bind(disk); disk.setItem = (...args) => { writes++; setItem(...args); };
+  for (const key of ['', null, '2027-13', '0000-01', '2026-12', '2026-11']) assert.equal(app.copyMonth(key), null);
+  assert.equal(writes, 0);
+  assert.equal(app.copyMonth('2027-01'), 8); assert.equal(writes, 1);
+  assert.equal(app.selected.value, '2026-12'); assert.equal(JSON.stringify(app.tasks.value), before);
+  const copies = app.data.value.months['2027-01'];
+  assert.deepEqual(copies.map(t => t.title), app.tasks.value.map(t => t.title));
+  copies.forEach((copy, i) => {
+    const source = app.tasks.value[i];
+    assert.notEqual(copy.id, source.id); assert.equal(copy.completed, false);
+    assert.deepEqual(copy.subtasks.map(s => s.title), source.subtasks.map(s => s.title));
+    copy.subtasks.forEach((sub, j) => { assert.notEqual(sub.id, source.subtasks[j].id); assert.equal(sub.completed, false); });
+  });
+  assert.equal(app.copyMonth('2027-02'), 8);
+  const restored = useMonthlyTasks(); restored.initialize(() => disk); restored.openMonth('2027-02');
+  assert.equal(restored.tasks.value.length, 8);
+  app.rename(copies[0].subtasks[0], 'Independente'); assert.equal(JSON.stringify(app.tasks.value), before);
+  app.openMonth('2027-03'); [...app.tasks.value].forEach(app.removeTask);
+  const emptyBefore = disk.raw; assert.equal(app.copyMonth('2027-04'), null); assert.equal(disk.raw, emptyBefore);
+});
+
+test('cópia mensal mantém proteção e avisos quando armazenamento falha', () => {
+  for (const disk of [storage('{invalid'), storage(null, true)]) {
+    const before = disk.raw, app = useMonthlyTasks(); app.initialize(() => disk); app.openMonth('2026-12');
+    assert.equal(app.copyMonth('2027-01'), 7);
+    assert.equal(disk.raw, before); assert.match(app.saveStatus.value, /não salvas/);
+    assert.ok(app.warning.value);
+  }
+});
 test('operações reativas, progresso e persistência entre meses e sessões', () => {
   const disk = storage(), app = useMonthlyTasks(); app.initialize(() => disk);
   assert.equal(app.tasks.value.length, 7);
