@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createMonth, isComplete, monthKey, shiftMonth, validateData } from './model.js';
+test('meses são cópias independentes com identificadores próprios', () => { const a = createMonth(), b = createMonth(); a[0].subtasks[0].completed = true; assert.equal(b[0].subtasks[0].completed, false); assert.notEqual(a[0].id, b[0].id); assert.equal(b.every(task => !isComplete(task)), true); });
+test('conclusão depende de todos os passos quando presentes', () => { const task = createMonth()[0]; task.completed = true; assert.equal(isComplete(task), false); task.subtasks.forEach(sub => sub.completed = true); assert.equal(isComplete(task), true); assert.equal(isComplete({ completed: false, subtasks: [] }), false); });
+test('navegação cruza a virada do ano nos dois sentidos', () => { assert.equal(shiftMonth('2026-12', 1), '2027-01'); assert.equal(shiftMonth('2027-01', -1), '2026-12'); assert.equal(monthKey(new Date(2026, 9, 27)), '2026-10'); });
+test('dados válidos sobrevivem à serialização; conteúdo inválido é recusado', () => { const data = { version: 1, months: { '2026-10': createMonth(), '2026-11': [] } }; assert.equal(validateData(JSON.parse(JSON.stringify(data))), true); for (const invalid of [null, {}, { version: 2, months: {} }, { version: 1, months: [] }, { version: 1, months: { '2026-13': [] } }, { version: 1, months: { '2026-10': [{ id: 'a', title: ' ', completed: false, subtasks: [] }] } }]) assert.equal(validateData(invalid), false); });
