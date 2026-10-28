@@ -98,7 +98,7 @@ footer p { font-size:.8125rem; margin:0; }
 footer small { flex-basis:100%; font-size:.75rem; }
 .app-notice { max-width:1036px; margin:1rem auto; padding:.75rem var(--gutter); border-block:1px solid var(--line); background:var(--surface); font-size:.875rem; line-height:1.6; }
 .update-notice { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
-.install-notice { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; padding-inline:max(var(--gutter),env(safe-area-inset-left)) max(var(--gutter),env(safe-area-inset-right)); border-left:3px solid var(--red); }
+.install-notice { position:fixed; z-index:5; inset-inline:max(1rem,env(safe-area-inset-left)) max(1rem,env(safe-area-inset-right)); bottom:max(1rem,env(safe-area-inset-bottom)); max-width:40rem; margin:0 auto; max-height:calc(100dvh - max(1rem,env(safe-area-inset-top)) - max(1rem,env(safe-area-inset-bottom))); overflow-y:auto; overscroll-behavior:contain; display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; border:1px solid var(--line); border-left:3px solid var(--red); border-radius:var(--radius); box-shadow:0 .25rem 1rem #0002; }
 .install-notice > div { flex:1 1 12rem; }
 .install-notice p { margin:.25rem 0 0; }
 .install-notice .icon-button { margin-left:auto; }

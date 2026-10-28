@@ -55,7 +55,8 @@ As fontes externas são opcionais: sem rede, a interface usa fontes locais.
 
 Em navegadores compatíveis, o topo (ao lado do tema) e o rodapé oferecem
 **Instalar aplicativo** quando o navegador disponibiliza a instalação.
-Após oito segundos, um aviso fechável também oferece a instalação. Fechá-lo
+Após oito segundos, um aviso fechável também oferece a instalação, flutuando
+na parte inferior da tela sobre o conteúdo, sem deslocar a página. Fechá-lo
 oculta o convite durante a sessão da aba, inclusive ao recarregar; o botão
 do topo continua disponível. No iPhone/iPad, esse botão abre as instruções
 **Safari → Compartilhar → Adicionar à Tela de Início**. O convite não aparece
