@@ -66,6 +66,18 @@ As ferramentas de vídeo do Brag são opcionais e não entram no build do app.
 
 ## Organização e dados
 
+Em **Métricas → Compartilhar conquistas**, uma prévia apresenta seu streak mensal,
+tarefas concluídas, meses ativos e melhor mês do histórico até o mês atual,
+independentemente do ano selecionado. Meses futuros ficam de fora. Os números
+refletem o estado atual das listas, sem histórico de datas de conclusão.
+O story é um PNG de 1080 × 1920 gerado no navegador, com apenas dados agregados.
+O modelo usa uma arte de cartaz com textura, mobilização coletiva e destaque
+para a sequência. Textos e números são preenchidos com seus resultados reais;
+a arte e a fonte de título ficam no cache do PWA para uso offline.
+Use **Compartilhar imagem** em dispositivos compatíveis ou **Baixar PNG** para
+anexar à rede desejada. A publicação é feita por você no aplicativo escolhido.
+A geração também funciona offline depois que o PWA estiver em cache.
+
 - app/app.vue: navegação, tema e avisos do PWA.
 - app/pages/index.vue: tarefas e diálogos de edição.
 - app/composables/useMonthlyTasks.js: estado mensal, operações e persistência.

@@ -24,8 +24,17 @@ export const INITIAL_TASKS = [
   { ...SUGGESTIONS[0], title: 'Engajar representantes da esquerda — 2ª vez' },
   SUGGESTIONS[4], SUGGESTIONS[2], SUGGESTIONS[5], SUGGESTIONS[6], SUGGESTIONS[3],
 ];
+export function createId() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  // HTTP na rede local disponibiliza getRandomValues, mas não randomUUID.
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
 export function freshTask(task) {
-  return { id: crypto.randomUUID(), title: task.title, completed: false, subtasks: task.subtasks.map(sub => ({ id: crypto.randomUUID(), title: typeof sub === 'string' ? sub : sub.title, completed: false })) };
+  return { id: createId(), title: task.title, completed: false, subtasks: task.subtasks.map(sub => ({ id: createId(), title: typeof sub === 'string' ? sub : sub.title, completed: false })) };
 }
 export function createMonth() { return INITIAL_TASKS.map(freshTask); }
 export const validMonth = key => typeof key === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(key) && !key.startsWith('0000-');

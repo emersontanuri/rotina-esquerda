@@ -2,12 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { annualMetrics } from './metrics.js';
+import { annualMetrics, achievementSummary } from './metrics.js';
 import { useMonthlyTasks } from './app/composables/useMonthlyTasks.js';
 import { readTheme, saveTheme, THEME_KEY } from './theme.js';
 const done = () => ({ completed: true, subtasks: [] });
 const tasks = n => Array.from({ length: n }, done);
 const now = new Date(2026, 9, 27);
+
+test('resumo acumulado ignora futuro, resolve empate pelo mês recente e não altera dados', () => {
+  const months = { '2025-12': tasks(2), '2026-09': tasks(2), '2026-10': [{ completed: false, subtasks: [{ completed: true }] }], '2026-11': tasks(20) };
+  const before = JSON.stringify(months);
+  assert.deepEqual(achievementSummary(months, now), { total: 5, active: 3, streak: 2, best: '2026-09', bestCount: 2, tied: true, through: '2026-10' });
+  assert.equal(JSON.stringify(months), before);
+});
+
+test('resumo preserva sequência entre anos e tolera mês atual vazio', () => {
+  const months = { '2025-12': tasks(1), '2026-01': tasks(1) };
+  assert.equal(achievementSummary(months, new Date(2026, 1, 1)).streak, 2);
+  assert.equal(achievementSummary(months, new Date(2026, 2, 1)).streak, 0);
+  assert.deepEqual(achievementSummary({}, now), { total: 0, active: 0, streak: 0, best: null, bestCount: 0, tied: false, through: '2026-10' });
+});
 
 test('métricas contam tarefas principais, incluem futuro e preservam entrada', () => {
   const months = { '2026-01': [done(), { completed: true, subtasks: [{ completed: false }] }, { completed: false, subtasks: [{ completed: true }, { completed: true }] }], '2026-12': tasks(2) };

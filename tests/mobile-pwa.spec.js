@@ -15,6 +15,27 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
         return r.width > 0 && r.height > 0 && (r.width < 44 || r.height < 44);
       }).map(e => e.getAttribute('aria-label') || e.textContent));
       expect(small).toEqual([]);
+      const arrows = await page.locator('.arrows button').evaluateAll(buttons => buttons.map(button => {
+        const { width, height } = button.getBoundingClientRect();
+        return { width, height };
+      }));
+      expect(arrows).toEqual([{ width: 44, height: 44 }, { width: 44, height: 44 }]);
+      const actions = page.getByRole('button', { name: 'Mais ações do mês', exact: true });
+      await actions.click();
+      const menu = page.locator('#month-actions-menu');
+      await expect(menu).toBeVisible();
+      expect(await menu.evaluate(element => {
+        const r = element.getBoundingClientRect();
+        return r.left >= 0 && r.right <= innerWidth;
+      })).toBe(true);
+      await page.keyboard.press('Escape');
+      await expect(menu).toBeHidden();
+      await expect(actions).toBeFocused();
+      await actions.click();
+      await page.getByRole('button', { name: 'Tarefas sugeridas', exact: true }).click();
+      await expect(page.getByRole('dialog', { name: 'Tarefas sugeridas', exact: true })).toBeVisible();
+      await page.getByRole('button', { name: 'Fechar', exact: true }).click();
+      await expect(actions).toBeFocused();
     }
     await page.locator('.task-toggle').first().click();
     await expect(page.locator('.subtasks').first()).toBeVisible();

@@ -1,17 +1,23 @@
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue';
-import { ChevronDown, Copy, Pencil, Trash2 } from '@lucide/vue';
+import { ArrowLeft, ArrowRight, ChevronDown, Copy, Pencil, Trash2 } from '@lucide/vue';
 import { SUGGESTIONS, isComplete, monthKey, shiftMonth, validMonth } from '../../model.js';
 import { useTaskStore } from '../composables/useTaskStore.js';
+import { dismissOnBackdrop } from '../utils/dialog.js';
 
 const { data, selected, tasks, completed, percent, monthTitle, warning, openMonth, addTask, addSuggestion, copyTask, copyMonth, addSubtask, rename, toggleTask, toggleSubtask, removeTask, removeSubtask } = useTaskStore();
 const monthCopyDialog = ref(null), monthCopyInput = ref(null), monthCopyCancel = ref(null);
 const monthDestination = ref(''), monthCopyError = ref(''), confirmingMonthCopy = ref(false), copyNotice = ref('');
 const destinationCount = computed(() => data.value.months[monthDestination.value]?.length || 0);
 const nextMonth = computed(() => selected.value < '9999-12' ? shiftMonth(selected.value, 1) : '');
+const monthActions = ref(null), monthActionsToggle = ref(null);
+function closeMonthActions() {
+  monthActions.value.hidePopover();
+  return monthActionsToggle.value;
+}
 let monthCopyReturnFocus;
 async function showMonthCopy(event) {
-  monthCopyReturnFocus = event.currentTarget;
+  monthCopyReturnFocus = closeMonthActions();
   monthDestination.value = nextMonth.value; monthCopyError.value = ''; confirmingMonthCopy.value = false;
   monthCopyDialog.value.showModal(); await nextTick(); monthCopyInput.value.focus();
 }
@@ -34,7 +40,7 @@ const suggestionsDialog = ref(null), suggestionsClose = ref(null), suggestionNot
 const copyDialog = ref(null), copyInput = ref(null), copyTarget = ref(null), destination = ref(''), copyError = ref(''), copiedMonth = ref('');
 let suggestionsReturnFocus, copyReturnFocus;
 async function showSuggestions(event) {
-  suggestionsReturnFocus = event.currentTarget; suggestionNotice.value = '';
+  suggestionsReturnFocus = closeMonthActions(); suggestionNotice.value = '';
   suggestionsDialog.value.showModal(); await nextTick(); suggestionsClose.value.focus();
 }
 function closeSuggestions() { suggestionsDialog.value.close(); suggestionsReturnFocus?.focus(); }
@@ -111,7 +117,14 @@ async function confirmDelete() {
       <section class="hero"><div><p class="eyebrow">O COLETIVO COMEÇA NO COTIDIANO</p><h1>Pequenos passos.<br><span>Grandes mudanças.</span></h1><p class="intro">Um mês de cada vez, uma ação de cada vez.<br>Este é o seu espaço para transformar intenção em mobilização.</p></div><div class="poster" aria-hidden="true"><span>NINGUÉM<br>TRANSFORMA<br>SOZINHO.</span><b>✳</b><small>FAÇA PARTE DO MOVIMENTO</small></div></section>
       <div v-if="warning" class="warning" role="alert">{{ warning }}</div>
       <section class="workspace" aria-label="Tarefas do mês">
-        <div class="month-bar"><div><p class="eyebrow">SUA AGENDA DE MOBILIZAÇÃO</p><div class="month-controls"><h2 id="month-title">{{ monthTitle }}</h2><div class="arrows"><button class="icon-button" aria-label="Mês anterior" @click="openMonth(shiftMonth(selected, -1))">←</button><button class="icon-button" aria-label="Próximo mês" @click="openMonth(shiftMonth(selected, 1))">→</button></div><button v-if="selected !== monthKey()" class="text-button" @click="openMonth(monthKey())">Mês atual</button></div></div><div class="month-actions"><button class="secondary" :disabled="!tasks.length || !nextMonth" @click="showMonthCopy($event)">Copiar todas para outro mês</button><button class="secondary" @click="showSuggestions($event)">Tarefas sugeridas</button><button id="add-task" class="primary" @click="edit(null, null, 'new-task', $event)">+ Nova tarefa</button></div></div>
+        <div class="month-bar"><div><p class="eyebrow">SUA AGENDA DE MOBILIZAÇÃO</p><div class="month-controls"><h2 id="month-title">{{ monthTitle }}</h2><div class="arrows"><button class="icon-button" aria-label="Mês anterior" @click="openMonth(shiftMonth(selected, -1))"><ArrowLeft :size="20" aria-hidden="true" /></button><button class="icon-button" aria-label="Próximo mês" @click="openMonth(shiftMonth(selected, 1))"><ArrowRight :size="20" aria-hidden="true" /></button></div><button v-if="selected !== monthKey()" class="text-button" @click="openMonth(monthKey())">Mês atual</button></div></div><div class="month-actions">
+          <button id="add-task" class="primary" @click="edit(null, null, 'new-task', $event)">+ Nova tarefa</button>
+          <button ref="monthActionsToggle" class="primary month-actions-toggle" popovertarget="month-actions-menu" aria-label="Mais ações do mês" title="Mais ações do mês"><ChevronDown :size="18" aria-hidden="true" /></button>
+          <div id="month-actions-menu" ref="monthActions" popover class="month-actions-menu">
+            <button class="secondary" :disabled="!tasks.length || !nextMonth" @click="showMonthCopy($event)">Copiar todas para outro mês</button>
+            <button class="secondary" @click="showSuggestions($event)">Tarefas sugeridas</button>
+          </div>
+        </div></div>
         <div v-if="copiedMonth" class="copy-notice"><span role="status">{{ copyNotice }}</span><button class="text-button" @click="viewCopiedMonth">Ver mês</button></div><div class="progress-panel"><div class="progress-text"><span>{{ completed }} de {{ tasks.length }} tarefas concluídas</span><span id="progress-percent">{{ percent }}%</span></div><div class="progress-track" role="progressbar" aria-label="Progresso mensal" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="percent"><div :style="{ width: `${percent}%` }" /></div><p>Cada ação conta. Siga no seu ritmo.</p></div>
         <div class="list-heading"><span>PLANO DO MÊS</span><span>{{ tasks.length }} {{ tasks.length === 1 ? 'TAREFA' : 'TAREFAS' }}</span></div>
         <div id="tasks">
@@ -142,8 +155,8 @@ async function confirmDelete() {
         <div class="bottom-note"><span aria-hidden="true">✳</span><p>A transformação também se constrói na constância.<br><strong>Seu próximo passo pode ser pequeno. Comece por ele.</strong></p></div>
       </section>
     </main>
-    <dialog ref="editor" aria-labelledby="editor-title" @cancel="closeEditor"><form @submit.prevent="submit"><p class="eyebrow">UM PASSO DE CADA VEZ</p><h2 id="editor-title">{{ editorTitle }}</h2><label for="title-input">Nome</label><input id="title-input" ref="titleInput" v-model="title" name="title" required autocomplete="off" :aria-invalid="!!error" aria-describedby="input-error"><p id="input-error" class="input-error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary" @click="closeEditor">Cancelar</button><button type="submit" class="primary">Salvar</button></div></form></dialog>
-    <dialog ref="suggestionsDialog" class="suggestions-dialog" aria-labelledby="suggestions-title" @cancel.prevent="closeSuggestions">
+    <dialog ref="editor" @click="dismissOnBackdrop($event, closeEditor)" aria-labelledby="editor-title" @cancel="closeEditor"><form @submit.prevent="submit"><p class="eyebrow">UM PASSO DE CADA VEZ</p><h2 id="editor-title">{{ editorTitle }}</h2><label for="title-input">Nome</label><input id="title-input" ref="titleInput" v-model="title" name="title" required autocomplete="off" :aria-invalid="!!error" aria-describedby="input-error"><p id="input-error" class="input-error" role="alert">{{ error }}</p><div class="dialog-actions"><button type="button" class="secondary" @click="closeEditor">Cancelar</button><button type="submit" class="primary">Salvar</button></div></form></dialog>
+    <dialog ref="suggestionsDialog" @click="dismissOnBackdrop($event, closeSuggestions)" class="suggestions-dialog" aria-labelledby="suggestions-title" @cancel.prevent="closeSuggestions">
       <div class="suggestions-heading"><h2 id="suggestions-title">Tarefas sugeridas</h2><button ref="suggestionsClose" class="secondary" @click="closeSuggestions">Fechar</button></div>
       <p>Escolha ações para {{ monthTitle }}. Você pode editar os passos depois.</p>
       <p class="suggestion-notice" role="status">{{ suggestionNotice }}</p>
@@ -152,7 +165,7 @@ async function confirmDelete() {
         <button class="secondary" :aria-label="`Adicionar ao mês: ${suggestion.title}`" @click="includeSuggestion(suggestion)">Adicionar ao mês</button>
       </article>
     </dialog>
-    <dialog ref="copyDialog" aria-labelledby="copy-title" @cancel.prevent="closeCopy">
+    <dialog ref="copyDialog" @click="dismissOnBackdrop($event, closeCopy)" aria-labelledby="copy-title" @cancel.prevent="closeCopy">
       <form @submit.prevent="submitCopy" novalidate>
         <h2 id="copy-title">Copiar para outro mês</h2><p class="copy-description">{{ copyTarget?.title }}</p>
         <label for="copy-month">Mês de destino</label><input id="copy-month" ref="copyInput" v-model="destination" type="month" min="0001-01" max="9999-12" required :aria-invalid="!!copyError" aria-describedby="copy-help copy-error">
@@ -160,7 +173,7 @@ async function confirmDelete() {
         <div class="dialog-actions"><button type="button" class="secondary" @click="closeCopy">Cancelar</button><button type="submit" class="primary">Copiar tarefa</button></div>
       </form>
     </dialog>
-    <dialog ref="monthCopyDialog" aria-labelledby="month-copy-title" @cancel.prevent="closeMonthCopy">
+    <dialog ref="monthCopyDialog" @click="dismissOnBackdrop($event, closeMonthCopy)" aria-labelledby="month-copy-title" @cancel.prevent="closeMonthCopy">
       <form @submit.prevent="submitMonthCopy" novalidate>
         <h2 id="month-copy-title">{{ confirmingMonthCopy ? 'Confirmar cópia do mês' : 'Copiar todas para outro mês' }}</h2>
         <p>{{ tasks.length }} tarefas de {{ monthTitle }} serão copiadas com todos os passos desmarcados.</p>
@@ -180,7 +193,7 @@ async function confirmDelete() {
         </div>
       </form>
     </dialog>
-    <dialog ref="deleteDialog" class="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description" @cancel.prevent="cancelDelete">
+    <dialog ref="deleteDialog" @click="dismissOnBackdrop($event, cancelDelete)" class="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description" @cancel.prevent="cancelDelete">
       <p class="eyebrow">CONFIRMAR EXCLUSÃO</p>
       <h2 id="delete-title">Excluir {{ pendingDelete?.sub ? 'subtarefa' : 'tarefa' }}?</h2>
       <div id="delete-description" v-if="pendingDelete" class="delete-description">
@@ -194,7 +207,14 @@ async function confirmDelete() {
 </template>
 
 <style scoped>
-.month-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.month-actions { display: flex; align-self: flex-start; flex-shrink: 0; anchor-name: --month-actions; }
+.month-actions > .primary:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.month-actions-toggle { display: grid; place-items: center; width: var(--touch); padding: 0; border-left-color: #ffffff55; border-radius: 0 var(--radius) var(--radius) 0; }
+.month-actions-menu { position: absolute; position-anchor: --month-actions; position-try-fallbacks: flip-inline; inset: auto; top: anchor(bottom); right: anchor(right); margin: .5rem 0 0; width: min(18rem, calc(100vw - 2rem)); padding: .375rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); color: var(--ink); box-shadow: 0 .375rem 1rem var(--backdrop); }
+.month-actions-menu:popover-open { display: grid; gap: .25rem; }
+.month-actions-menu .secondary { text-align: left; border: 0; }
+.month-actions-menu .secondary:hover { background: var(--surface); }
+@media (min-width:700px) { .month-actions { align-self: center; } }
 .month-actions button:disabled { opacity: .55; cursor: not-allowed; }
 .copy-notice { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
 .suggestions-dialog { width: min(680px, calc(100% - 32px)); max-height: 85dvh; overflow-y: auto; }
@@ -206,7 +226,7 @@ async function confirmDelete() {
 .suggestion-card h3 { margin: 0; overflow-wrap: anywhere; }
 .suggestion-card li { line-height: 1.7; }
 .copy-description { overflow-wrap: anywhere; }
-@media (max-width: 700px) { .month-bar { flex-wrap: wrap; } .month-actions { width: 100%; } }
+
 .delete-description { line-height: 1.7; overflow-wrap: anywhere; color: var(--muted); }
 .delete-description strong { color: var(--ink); }
 .task-toggle {

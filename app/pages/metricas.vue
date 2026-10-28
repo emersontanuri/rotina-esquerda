@@ -25,6 +25,7 @@ const streakMessage = computed(() => metrics.value.streak === null ? 'A sequênc
       <div><p class="eyebrow">SUA CONSTÂNCIA EM MOVIMENTO</p><h1>Cada <span>ação</span> conta.</h1><p class="intro">Acompanhe suas tarefas concluídas, mês a mês.</p></div>
       <label class="year-picker">Ano <select v-model.number="year"><option v-for="option in years" :key="option" :value="option">{{ option }}</option></select></label>
     </section>
+    <ShareStory />
     <div v-if="warning" class="warning" role="alert">{{ warning }}</div>
     <div class="metric-cards">
       <article class="metric-card"><ClipboardCheck aria-hidden="true" /><strong>{{ format(metrics.total) }}</strong><p>Tarefas concluídas no ano</p></article>

@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue';
-import { STORAGE_KEY, SUGGESTIONS, createMonth, freshTask, isComplete, migrateLegacyTasks, monthKey, validMonth, validateData } from '../../model.js';
+import { STORAGE_KEY, SUGGESTIONS, createId, createMonth, freshTask, isComplete, migrateLegacyTasks, monthKey, validMonth, validateData } from '../../model.js';
 
 // Acesso ao navegador apenas em initialize(), durante a inicialização no cliente.
 export function useMonthlyTasks() {
@@ -51,7 +51,7 @@ export function useMonthlyTasks() {
     if (createSelected) openMonth(selected.value);
   }
   function addTask(title) {
-    const task = { id: crypto.randomUUID(), title, completed: false, subtasks: [] };
+    const task = { id: createId(), title, completed: false, subtasks: [] };
     tasks.value.push(task); save(); return task;
   }
   function addSuggestion(suggestion) {
@@ -66,7 +66,7 @@ export function useMonthlyTasks() {
     data.value.months[destination].push(copy); save(); return copy;
   }
   function addSubtask(task, title) {
-    task.subtasks.push({ id: crypto.randomUUID(), title, completed: false }); task.completed = false; save();
+    task.subtasks.push({ id: createId(), title, completed: false }); task.completed = false; save();
   }
   function copyMonth(destination) {
     if (!validMonth(destination) || destination <= selected.value || !tasks.value.length) return null;

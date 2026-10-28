@@ -25,7 +25,8 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,woff2,ttf}'],
+      maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       navigateFallback: '/',
       navigateFallbackDenylist: [/^\/api\//],
       cleanupOutdatedCaches: true,

@@ -17,13 +17,15 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     });
     await page.goto('/');
     const trigger = page.getByRole('button', { name: 'Copiar todas para outro mês', exact: true });
-    await expect(trigger).toBeVisible();
+    const actions = page.getByRole('button', { name: 'Mais ações do mês', exact: true });
+    await expect(trigger).toBeHidden();
     const before = await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'));
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;
       if (!navigator.serviceWorker.controller) await new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true }));
     });
     await context.setOffline(true);
+    await actions.click();
     await trigger.click();
     const dialog = page.getByRole('dialog');
     const input = dialog.getByLabel('Mês de destino', { exact: true });
@@ -45,12 +47,14 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
       })).toBe(true);
     }
     await page.keyboard.press('Escape');
-    await expect(trigger).toBeFocused();
+    await expect(actions).toBeFocused();
     expect(await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'))).toBe(before);
+    await actions.click();
     await trigger.click();
     await dialog.getByRole('button', { name: 'Continuar', exact: true }).click();
     await dialog.getByRole('button', { name: 'Cancelar', exact: true }).click();
     expect(await page.evaluate(() => localStorage.getItem('rotina-esquerda:v1'))).toBe(before);
+    await actions.click();
     await trigger.click();
     await dialog.getByRole('button', { name: 'Continuar', exact: true }).click();
     await dialog.getByRole('button', { name: 'Substituir e copiar', exact: true }).click();
@@ -62,6 +66,7 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page.getByRole('button', { name: 'Próximo mês', exact: true }).click();
     await expect(page.locator('.task')).toHaveCount(1);
     await expect(page.getByRole('heading', { name: 'Plano personalizado', exact: true })).toBeVisible();
+    await actions.click();
     await trigger.click();
     await dialog.getByRole('button', { name: 'Continuar', exact: true }).click();
     await expect(dialog).toContainText('somente as cópias');

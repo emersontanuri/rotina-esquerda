@@ -2,6 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { useMonthlyTasks } from './app/composables/useMonthlyTasks.js';
 import { SUGGESTIONS, LEGACY_TASKS, freshTask, monthKey, shiftMonth } from './model.js';
+test('cria e restaura tarefas sem randomUUID no acesso HTTP pela rede', t => {
+  const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+  const getRandomValues = globalThis.crypto.getRandomValues.bind(globalThis.crypto);
+  Object.defineProperty(globalThis, 'crypto', { configurable: true, value: { getRandomValues } });
+  t.after(() => Object.defineProperty(globalThis, 'crypto', descriptor));
+  const disk = storage(), app = useMonthlyTasks();
+  app.initialize(() => disk);
+  const task = app.addTask('Tarefa na rede');
+  app.addSubtask(task, 'Passo na rede');
+  app.addSuggestion(SUGGESTIONS[0]);
+  app.copyTask(task, '2027-01');
+  const ids = Object.values(app.data.value.months).flatMap(tasks => tasks.flatMap(task => [task.id, ...task.subtasks.map(sub => sub.id)]));
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(ids.every(id => /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id)));
+  const restored = useMonthlyTasks();
+  restored.initialize(() => disk);
+  assert.deepEqual(restored.data.value, app.data.value);
+});
 test('banco completo, repetição, independência e restauração', () => {
   const disk = storage(), app = useMonthlyTasks(); app.initialize(() => disk);
   assert.equal(SUGGESTIONS.length, 13);

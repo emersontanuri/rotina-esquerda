@@ -1,5 +1,17 @@
 import { isComplete, monthKey, shiftMonth } from './model.js';
 
+export function achievementSummary(months, now = new Date()) {
+  const through = monthKey(now);
+  const entries = Object.keys(months).filter(key => key <= through).sort()
+    .map(key => ({ key, count: months[key].filter(isComplete).length }));
+  const active = entries.filter(entry => entry.count > 0);
+  const bestCount = Math.max(0, ...active.map(entry => entry.count));
+  const best = active.filter(entry => entry.count === bestCount);
+  return { total: active.reduce((sum, entry) => sum + entry.count, 0), active: active.length,
+    streak: annualMetrics(months, now.getFullYear(), now).streak,
+    best: best.at(-1)?.key || null, bestCount, tied: best.length > 1, through };
+}
+
 export function annualMetrics(months, year, now = new Date()) {
   const current = monthKey(now);
   const count = key => (months[key] || []).filter(isComplete).length;
