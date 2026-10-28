@@ -101,6 +101,13 @@ Use **Compartilhar imagem** em dispositivos compatíveis ou **Baixar PNG** para
 anexar à rede desejada. A publicação é feita por você no aplicativo escolhido.
 A geração também funciona offline depois que o PWA estiver em cache.
 
+Em **Resumo do mês**, escolha o mês anterior ou o mês atual. A arte usa as
+atividades principais concluídas na lista escolhida e compara o total com a
+lista do mês anterior; o mês atual é um retrato parcial até o momento. As
+atividades aparecem em imagens adicionais, disponíveis para baixar ou
+compartilhar individualmente. A arte mensal e sua ilustração também funcionam
+offline após a conclusão do cache.
+
 - app/app.vue: navegação, tema e avisos do PWA.
 - app/pages/index.vue: apresentação e acesso às tarefas.
 - app/pages/tarefas.vue: tarefas e diálogos de edição.

@@ -13,7 +13,7 @@
     "cf:dev": "npm run cf:build && wrangler dev --assets .output/public",
     "cf:deploy": "npm run cf:build && wrangler deploy",
     "postinstall": "nuxt prepare",
-    "test": "node --test app.test.js model.test.js metrics.test.js",
+    "test": "node --test app.test.js model.test.js metrics.test.js story.test.js",
     "test:e2e": "playwright test"
   },
   "dependencies": {

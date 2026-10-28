@@ -91,6 +91,53 @@ test('sem suporte oferece download; falha de geração permite tentar novamente'
   await expect(page.getByRole('dialog')).toContainText('Baixe o PNG');
 });
 
+test('resumo do mês compara listas e navega entre páginas de atividades', async ({ page }) => {
+  await page.addInitScript(() => {
+    const now = new Date();
+    const key = offset => {
+      const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    };
+    const task = (id, title) => ({ id, title, completed: true, subtasks: [] });
+    const previous = Array.from({ length: 15 }, (_, index) => task(`current-${index}`, `Atividade concluída ${index + 1}`));
+    const comparison = Array.from({ length: 5 }, (_, index) => task(`previous-${index}`, `Anterior ${index + 1}`));
+    localStorage.setItem('rotina-esquerda:v1', JSON.stringify({ version: 1, months: { [key(-1)]: previous, [key(-2)]: comparison } }));
+  });
+  await page.goto('/metricas');
+  await page.getByRole('button', { name: 'Compartilhar conquistas', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Tipo de arte' }).selectOption('monthly');
+  await expect(page.getByRole('img', { name: /Resumo de/ })).toBeVisible();
+  await expect(page.getByText('1/3')).toBeVisible();
+  await page.getByRole('button', { name: 'Próxima imagem' }).click();
+  await expect(page.getByText('2/3')).toBeVisible();
+  await expect(page.getByRole('img', { name: /Resumo de/ })).toHaveAttribute('alt', /15 atividades concluídas/);
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Baixar PNG', exact: true }).click();
+  expect((await download).suggestedFilename()).toMatch(/^resumo-\d{4}-\d{2}-2-de-3\.png$/);
+});
+
+test('permite escolher o mês atual e mostra apenas suas atividades concluídas', async ({ page }) => {
+  await page.addInitScript(() => {
+    const now = new Date();
+    const key = offset => {
+      const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    };
+    const task = (id, completed) => ({ id, title: id, completed, subtasks: [] });
+    localStorage.setItem('rotina-esquerda:v1', JSON.stringify({ version: 1, months: {
+      [key(-1)]: [task('anterior', true)], [key(0)]: [task('concluída', true), task('pendente', false)],
+    } }));
+  });
+  await openStory(page);
+  await page.getByRole('combobox', { name: 'Tipo de arte' }).selectOption('monthly');
+  await page.getByRole('combobox', { name: 'Período do resumo' }).selectOption('current');
+  await expect(page.getByRole('img', { name: /Resumo de/ })).toHaveAttribute('alt', /1 atividade concluída/);
+  await expect(page.getByRole('dialog')).toContainText('O mês está em andamento');
+  await expect(page.getByText('1/2')).toBeVisible();
+  await page.getByRole('button', { name: 'Próxima imagem' }).click();
+  await expect(page.getByText('2/2')).toBeVisible();
+});
+
 for (const width of [320, 375, 414, 768, 1024, 1440]) {
   test(`story acessível em ${width}px e ambos os temas`, async ({ page }) => {
     await page.setViewportSize({ width, height: 812 });
@@ -126,5 +173,8 @@ test('gera story offline após cache do PWA', async ({ page, context }) => {
   await page.getByRole('button', { name: 'Compartilhar conquistas' }).click();
   await expect(page.getByRole('img', { name: /Story com/ })).toBeVisible();
   expect(await page.evaluate(async () => !!(await caches.match('/share/story-background.png', { ignoreSearch: true })))).toBe(true);
+  await page.getByRole('combobox', { name: 'Tipo de arte' }).selectOption('monthly');
+  await expect(page.getByRole('img', { name: /Resumo de/ })).toBeVisible();
+  expect(await page.evaluate(async () => !!(await caches.match('/share/monthly-story-background-v2.png', { ignoreSearch: true })))).toBe(true);
   expect(await page.evaluate(() => [...document.fonts].some(font => font.family === 'StoryDisplay' && font.status === 'loaded'))).toBe(true);
 });

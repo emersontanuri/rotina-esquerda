@@ -13,12 +13,12 @@
 }
 :root[data-theme=dark] {
   color-scheme:dark;
-  --paper:#1b1c1a; --ink:#f4f0e5; --red:#ff8a7f; --line:#45463f;
-  --muted:#bab6ac; --surface:#2c2d28; --card:#242520; --track:#45463f;
-  --control:#8c8c80; --success:#a5b68a; --focus:#9cc7ff; --warning:#3b2b23;
-  --backdrop:#0009; --poster-shadow:#10110f; --poster-motif:#ee8c78;
-  --heat-0:#30312b; --heat-1:#442e2a; --heat-2:#653a33;
-  --heat-3:#8b473c; --heat-4:#ba6454; --heat-5:#f09b87;
+  --paper:#1b1c1a; --ink:#f4f0e5; --red:#ff655b; --line:#45463f;
+  --muted:#c4c0b5; --surface:#2c2d28; --card:#242520; --track:#45463f;
+  --control:#aaa99b; --success:#b9d878; --focus:#9cc7ff; --warning:#4a2b25;
+  --backdrop:#0009; --accent:#d83a32; --poster-shadow:#10110f; --poster-motif:#ff806d;
+  --heat-0:#30312b; --heat-1:#51302c; --heat-2:#743831;
+  --heat-3:#a94338; --heat-4:#d95748; --heat-5:#f47761;
 }
 * { box-sizing:border-box; }
 body { margin:0; background:var(--paper); color:var(--ink); font:1rem/1.5 'DM Sans',Arial,sans-serif; }

@@ -1,5 +1,17 @@
 import { test, expect } from '@playwright/test';
 
+test('modo escuro reduz apenas a opacidade da ilustração, inclusive após navegar', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('rotina-de-base:theme', 'dark'));
+  await page.goto('/');
+  await expect(page.locator('.presentation-art')).toBeVisible();
+  await expect(page.locator('html')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.presentation-art')).toHaveCSS('opacity', '0.65');
+  await page.getByRole('link', { name: 'Ir para minhas tarefas' }).click();
+  await page.getByRole('link', { name: 'Métricas', exact: true }).click();
+  await expect(page.locator('html')).toHaveCSS('opacity', '1');
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+});
+
 for (const [width, height] of [[1024, 768], [1440, 900], [1920, 912], [2560, 1080]]) {
   test(`home sem rolagem em ${width}×${height}px`, async ({ page }) => {
     await page.setViewportSize({ width, height });

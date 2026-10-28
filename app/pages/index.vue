@@ -103,7 +103,7 @@ video { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:co
 figcaption { margin-top:.625rem; font-size:.875rem; color:var(--muted); }
 .playback-error { margin:.5rem 0 0; font-size:.875rem; color:var(--red); }
 .presentation-cta { display:inline-flex; align-items:center; justify-content:center; width:100%; max-width:20rem; min-height:3.25rem; padding:.75rem 1.25rem; text-decoration:none; font-size:1rem; }
-:global(:root[data-theme=dark]) .presentation-art { opacity:.65; }
+:global(:root[data-theme=dark] .presentation-art) { opacity:.65; }
 @media (min-width:450px) {
   .presentation { padding-bottom:14rem; }
 }
