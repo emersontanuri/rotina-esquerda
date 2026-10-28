@@ -25,6 +25,18 @@ pnpm generate gera arquivos estáticos em .output/public. O app usa renderizaç�
 
 ## Mobile e PWA
 
+A página secundária de teste `/apresentacao` apresenta a Rotina de Base com
+mensagem, vídeo horizontal e acesso às tarefas. A página inicial `/` continua
+abrindo as tarefas. O vídeo inicia ao tocar em reproduzir e depende de rede;
+não entra no precache do PWA. A apresentação e o acesso às tarefas funcionam
+offline após a primeira visita online e a conclusão do cache.
+A apresentação usa a direção visual “Cartaz vivo”, com ilustrações em
+`public/presentation/`, título em fonte local e capa ilustrada com botão de
+reprodução. Após iniciar o vídeo, os controles nativos ficam disponíveis.
+No desktop, as artes laterais são imagens independentes, proporcionais e
+alinhadas ao fundo da página. Abaixo de 700px, permanece a composição original
+de fundo na base, sem fade sobre as figuras.
+
 O layout começa em 320px e amplia em 450, 700 e 1024px. Os cartões agrupam
 as ações no rodapé e os controles têm área mínima de 44px. Os formulários
 usam fonte de 16px e os diálogos respeitam a altura útil e as safe areas.
@@ -35,9 +47,13 @@ as rotas `/` e `/metricas` funcionam offline, inclusive ao recarregar.
 As tarefas continuam na chave local existente, sem sincronização com servidor.
 As fontes externas são opcionais: sem rede, a interface usa fontes locais.
 
-Em navegadores compatíveis, o rodapé oferece **Instalar aplicativo** quando
-o navegador disponibiliza a instalação. No Safari do iPhone/iPad, use
-**Compartilhar → Adicionar à Tela de Início**. Em produção é necessário HTTPS;
+Em navegadores compatíveis, o topo (ao lado do tema) e o rodapé oferecem
+**Instalar aplicativo** quando o navegador disponibiliza a instalação.
+Após oito segundos, um aviso fechável também oferece a instalação. Fechá-lo
+oculta o convite durante a sessão da aba, inclusive ao recarregar; o botão
+do topo continua disponível. No iPhone/iPad, esse botão abre as instruções
+**Safari → Compartilhar → Adicionar à Tela de Início**. O convite não aparece
+quando o app está aberto em modo instalado. Em produção é necessário HTTPS;
 localhost é aceito para desenvolvimento. Instalar não cria backup dos dados.
 
 Novos builds apresentam **Atualizar agora**. A atualização só recarrega após

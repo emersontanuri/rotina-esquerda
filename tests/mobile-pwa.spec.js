@@ -5,8 +5,17 @@ for (const width of [320, 375, 414, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
+    await page.route('https://fonts.googleapis.com/**', route => route.abort());
+    await page.clock.install();
     await page.goto('/');
     await expect(page.locator('.task')).toHaveCount(7);
+    await page.evaluate(() => {
+      const event = new Event('beforeinstallprompt', { cancelable: true });
+      event.prompt = async () => {};
+      window.dispatchEvent(event);
+    });
+    await page.clock.fastForward(8000);
+    await expect(page.getByRole('region', { name: 'Instalar no celular' })).toBeVisible();
     for (const theme of ['light', 'dark']) {
       await page.evaluate(theme => document.documentElement.dataset.theme = theme, theme);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
